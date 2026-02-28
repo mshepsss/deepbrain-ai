@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     const event = JSON.parse(text);
     return NextResponse.json(event);
   } catch (e) {
-    console.error('[events] API error:', e);
-    return NextResponse.json({ error: 'Failed to generate event' }, { status: 500 });
+    const message = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: 'Failed to generate event', detail: message }, { status: 500 });
   }
 }
