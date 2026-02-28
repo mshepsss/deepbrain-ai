@@ -21,6 +21,6 @@ describe('roles', () => {
   });
 
   it('throws for unknown role id', () => {
-    expect(() => getRoleById('unknown' as any)).toThrow();
+    expect(() => getRoleById('unknown' as unknown as import('@/lib/types').RoleId)).toThrow();
   });
 });
