@@ -26,15 +26,15 @@ export async function POST(req: NextRequest) {
 
   const userPrompt = `Game state: Month ${month}, Cash $${(cash / 1_000_000).toFixed(1)}M, AGI Progress ${agiProgress}%, Headcount ${headcount}, Player role: ${role}. Generate the next industry event.`;
 
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 512,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: userPrompt }],
-  });
-
-  const text = message.content[0].type === 'text' ? message.content[0].text : '{}';
   try {
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 512,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userPrompt }],
+    });
+
+    const text = message.content[0].type === 'text' ? message.content[0].text : '{}';
     const event = JSON.parse(text);
     return NextResponse.json(event);
   } catch {
