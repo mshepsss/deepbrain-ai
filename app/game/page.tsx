@@ -48,6 +48,7 @@ export default function GamePage() {
           role: state.role,
         }),
       });
+      if (!res.ok) throw new Error('Event fetch failed');
       const data = await res.json();
       setEvent(data);
     } catch {
