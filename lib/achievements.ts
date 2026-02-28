@@ -1,4 +1,4 @@
-import type { Achievement, GameState } from './types';
+import type { Achievement, GameState, StatModifier } from './types';
 
 export const ACHIEVEMENTS: Omit<Achievement, 'unlocked'>[] = [
   {
@@ -40,6 +40,25 @@ export const ACHIEVEMENTS: Omit<Achievement, 'unlocked'>[] = [
 
 export const getInitialAchievements = (): Achievement[] =>
   ACHIEVEMENTS.map(a => ({ ...a, unlocked: false }));
+
+export const getAchievementBonuses = (achievements: Achievement[]): StatModifier => {
+  const unlocked = achievements.filter(a => a.unlocked);
+  if (unlocked.length === 0) return {};
+  return unlocked.reduce<StatModifier>((acc, a) => {
+    const b = a.bonus;
+    return {
+      revenuePerRepMultiplier: (acc.revenuePerRepMultiplier ?? 1) * (b.revenuePerRepMultiplier ?? 1),
+      repRampTimeMultiplier: (acc.repRampTimeMultiplier ?? 1) * (b.repRampTimeMultiplier ?? 1),
+      researchSpeedMultiplier: (acc.researchSpeedMultiplier ?? 1) * (b.researchSpeedMultiplier ?? 1),
+      engineeringHireCostMultiplier: (acc.engineeringHireCostMultiplier ?? 1) * (b.engineeringHireCostMultiplier ?? 1),
+      startingCashMultiplier: (acc.startingCashMultiplier ?? 1) * (b.startingCashMultiplier ?? 1),
+      burnRateMultiplier: (acc.burnRateMultiplier ?? 1) * (b.burnRateMultiplier ?? 1),
+      agiProgressMultiplier: (acc.agiProgressMultiplier ?? 1) * (b.agiProgressMultiplier ?? 1),
+      computeCostMultiplier: (acc.computeCostMultiplier ?? 1) * (b.computeCostMultiplier ?? 1),
+      userAcquisitionMultiplier: (acc.userAcquisitionMultiplier ?? 1) * (b.userAcquisitionMultiplier ?? 1),
+    };
+  }, {});
+};
 
 export const checkAchievements = (state: GameState): GameState => {
   const updatedAchievements = state.achievements.map(a =>

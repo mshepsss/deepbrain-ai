@@ -7,11 +7,11 @@ import { Dashboard } from '@/components/Dashboard';
 import { EventCard } from '@/components/EventCard';
 import { DecisionPanel } from '@/components/DecisionPanel';
 import { AchievementsList } from '@/components/AchievementsList';
-import { applyResearchMilestone } from '@/lib/gameEngine';
+import { computeHireDelta } from '@/lib/gameEngine';
 import type { Department, GameEvent, StatDelta } from '@/lib/types';
 
 export default function GamePage() {
-  const { state, applyChoice, endTurn, reset } = useGame();
+  const { state, applyChoice, completeMilestone, endTurn, reset } = useGame();
   const router = useRouter();
   const [event, setEvent] = useState<GameEvent | null>(null);
   const [eventChosen, setEventChosen] = useState(false);
@@ -78,42 +78,13 @@ export default function GamePage() {
   };
 
   const handleHire = (dept: Department) => {
-    const costs: Record<Department, number> = {
-      engineering: 15_000,
-      sales: 10_000,
-      operations: 8_000,
-    };
-    const revenueGain: Record<Department, number> = {
-      engineering: 0,
-      sales: 5_000,
-      operations: 0,
-    };
-    const burnIncrease: Record<Department, number> = {
-      engineering: 12_000,
-      sales: 8_000,
-      operations: 6_000,
-    };
-
-    applyChoice({
-      cash: -costs[dept],
-      burnRate: burnIncrease[dept],
-      revenue: revenueGain[dept],
-    });
+    applyChoice(computeHireDelta(dept, state));
     setDecisionsMade(d => d + 1);
   };
 
   const handleResearch = (milestoneId: string) => {
-    const next = applyResearchMilestone(state, milestoneId);
-    const delta: StatDelta = {
-      agiProgress: next.agiProgress - state.agiProgress,
-      researchPoints: next.researchPoints - state.researchPoints,
-    };
-    applyChoice(delta);
+    completeMilestone(milestoneId);
     setDecisionsMade(d => d + 1);
-  };
-
-  const handleEndTurn = () => {
-    endTurn();
   };
 
   // Win screen
@@ -181,7 +152,6 @@ export default function GamePage() {
               revenue={state.revenue}
               agiProgress={state.agiProgress}
               researchPoints={state.researchPoints}
-              month={state.month}
               headcount={state.headcount}
             />
             <AchievementsList achievements={state.achievements} />
@@ -210,7 +180,7 @@ export default function GamePage() {
               milestones={state.milestones}
               onHire={handleHire}
               onResearch={handleResearch}
-              onEndTurn={handleEndTurn}
+              onEndTurn={endTurn}
               decisionsMade={decisionsMade}
             />
           </div>

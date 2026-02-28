@@ -6,7 +6,6 @@ interface Props {
   revenue: number;
   agiProgress: number;
   researchPoints: number;
-  month: number;
   headcount: { engineering: number; sales: number; operations: number };
 }
 
@@ -16,7 +15,7 @@ const fmt = (n: number) => {
   return `$${n}`;
 };
 
-export const Dashboard = ({ cash, burnRate, revenue, agiProgress, researchPoints, month, headcount }: Props) => {
+export const Dashboard = ({ cash, burnRate, revenue, agiProgress, researchPoints, headcount }: Props) => {
   const runway = burnRate > 0 ? cash / burnRate : Infinity;
   const isLowRunway = runway < 3;
   const netBurn = burnRate - revenue;

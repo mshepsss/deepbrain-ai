@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react';
 import type { GameState, RoleId, StatDelta } from '@/lib/types';
-import { createInitialState, applyEventChoice, processTurnEnd, checkWinLose } from '@/lib/gameEngine';
+import { createInitialState, applyEventChoice, applyResearchMilestone, processTurnEnd, checkWinLose } from '@/lib/gameEngine';
+import { checkAchievements } from '@/lib/achievements';
 
 const STORAGE_KEY = 'deepbrain-ai-state';
 
@@ -15,32 +16,36 @@ const defaultState: GameState = {
   agiProgress: 0,
   researchPoints: 0,
   headcount: { engineering: 0, sales: 0, operations: 0 },
-  budgetAllocation: { rd: 40, sales: 20, compute: 30, ops: 10 },
   role: null,
   achievements: [],
   milestones: [],
   currentEvent: null,
-  pendingDecisions: [],
 };
 
 type Action =
   | { type: 'START_GAME'; role: RoleId }
   | { type: 'APPLY_EVENT_CHOICE'; delta: StatDelta }
+  | { type: 'COMPLETE_MILESTONE'; milestoneId: string }
   | { type: 'END_TURN' }
   | { type: 'LOAD_STATE'; state: GameState }
   | { type: 'RESET' };
 
-const reducer = (state: GameState, action: Action): GameState => {
+export const reducer = (state: GameState, action: Action): GameState => {
   switch (action.type) {
     case 'START_GAME':
       return createInitialState(action.role);
     case 'APPLY_EVENT_CHOICE': {
-      const next = applyEventChoice(state, action.delta);
+      const next = checkAchievements(applyEventChoice(state, action.delta));
+      const result = checkWinLose(next);
+      return { ...next, phase: result === 'continue' ? 'playing' : result };
+    }
+    case 'COMPLETE_MILESTONE': {
+      const next = checkAchievements(applyResearchMilestone(state, action.milestoneId));
       const result = checkWinLose(next);
       return { ...next, phase: result === 'continue' ? 'playing' : result };
     }
     case 'END_TURN': {
-      const next = processTurnEnd(state);
+      const next = checkAchievements(processTurnEnd(state));
       const result = checkWinLose(next);
       return { ...next, phase: result === 'continue' ? 'playing' : result };
     }
@@ -57,6 +62,7 @@ interface GameContextValue {
   state: GameState;
   startGame: (role: RoleId) => void;
   applyChoice: (delta: StatDelta) => void;
+  completeMilestone: (milestoneId: string) => void;
   endTurn: () => void;
   reset: () => void;
 }
@@ -86,6 +92,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       state,
       startGame: (role) => dispatch({ type: 'START_GAME', role }),
       applyChoice: (delta) => dispatch({ type: 'APPLY_EVENT_CHOICE', delta }),
+      completeMilestone: (milestoneId) => dispatch({ type: 'COMPLETE_MILESTONE', milestoneId }),
       endTurn: () => dispatch({ type: 'END_TURN' }),
       reset: () => dispatch({ type: 'RESET' }),
     }}>

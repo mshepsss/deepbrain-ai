@@ -34,7 +34,10 @@ export async function POST(req: NextRequest) {
   });
 
   const text = message.content[0].type === 'text' ? message.content[0].text : '{}';
-  const event = JSON.parse(text);
-
-  return NextResponse.json(event);
+  try {
+    const event = JSON.parse(text);
+    return NextResponse.json(event);
+  } catch {
+    return NextResponse.json({ error: 'Failed to generate event' }, { status: 500 });
+  }
 }

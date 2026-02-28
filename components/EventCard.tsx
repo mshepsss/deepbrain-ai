@@ -14,9 +14,9 @@ export const EventCard = ({ event, onChoose, disabled = false }: Props) => (
       <p className="text-sm text-slate-500 mt-1">{event.flavourText}</p>
     </div>
     <div className="space-y-2">
-      {event.options.map((opt, i) => (
+      {event.options.map((opt) => (
         <button
-          key={i}
+          key={opt.label}
           disabled={disabled}
           onClick={() => onChoose(opt.effect)}
           className="w-full text-left rounded-xl border border-slate-200 px-4 py-3 hover:border-indigo-400 hover:bg-indigo-50 transition-colors disabled:opacity-50"

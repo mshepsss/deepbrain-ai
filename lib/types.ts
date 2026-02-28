@@ -44,38 +44,13 @@ export interface Headcount {
   operations: number;
 }
 
-export interface BudgetAllocation {
-  rd: number;
-  sales: number;
-  compute: number;
-  ops: number;
-}
-
-export type DecisionType = 'hire' | 'budget' | 'research';
-
-export interface HireDecision {
-  type: 'hire';
-  department: Department;
-}
-
-export interface BudgetDecision {
-  type: 'budget';
-  allocation: BudgetAllocation;
-}
-
-export interface ResearchDecision {
-  type: 'research';
-  milestoneId: string;
-}
-
-export type Decision = HireDecision | BudgetDecision | ResearchDecision;
-
 export interface StatDelta {
   cash?: number;
   burnRate?: number;
   revenue?: number;
   agiProgress?: number;
   researchPoints?: number;
+  headcount?: Partial<Headcount>;
 }
 
 export interface EventOption {
@@ -111,10 +86,8 @@ export interface GameState {
   agiProgress: number;
   researchPoints: number;
   headcount: Headcount;
-  budgetAllocation: BudgetAllocation;
   role: RoleId | null;
   achievements: Achievement[];
   milestones: ResearchMilestone[];
   currentEvent: GameEvent | null;
-  pendingDecisions: Decision[];
 }
