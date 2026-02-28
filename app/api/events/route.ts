@@ -34,7 +34,8 @@ export async function POST(req: NextRequest) {
       messages: [{ role: 'user', content: userPrompt }],
     });
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : '{}';
+    const raw = message.content[0].type === 'text' ? message.content[0].text : '{}';
+    const text = raw.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
     const event = JSON.parse(text);
     return NextResponse.json(event);
   } catch (e) {
