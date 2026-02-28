@@ -1,6 +1,7 @@
 import type { GameState, StatDelta, RoleId } from './types';
 import { getRoleById } from './roles';
 import { getInitialMilestones, RESEARCH_MILESTONES } from './milestones';
+import { getInitialAchievements } from './achievements';
 
 const BASE_CASH = 5_000_000;
 const BASE_BURN = 200_000;
@@ -23,7 +24,7 @@ export const createInitialState = (roleId: RoleId): GameState => {
     headcount: { engineering: 1, sales: 0, operations: 1 },
     budgetAllocation: { rd: 40, sales: 20, compute: 30, ops: 10 },
     role: roleId,
-    achievements: [],
+    achievements: getInitialAchievements(),
     milestones: getInitialMilestones(),
     currentEvent: null,
     pendingDecisions: [],
